@@ -78,7 +78,9 @@ describe("Client", () => {
 
   test("_checkStatus throws IndodaxError", async () => {
     mockFetch({ code: -1003, msg: "rate limit" }, 429);
-    const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
+    // retries: 0 biar 429 langsung dilempar ke _checkStatus,
+    // kalau pakai retries default 3, http.ts bakal retry 1s+2s+4s = ~7s > timeout 5s
+    const c = new Client("KEY", "SECRET", { rateLimit: 1000, retries: 0 });
     try {
       await c.getTicker("ETHIDR");
       throw new Error("should throw");
