@@ -1,0 +1,102 @@
+import { Client } from "../src/client";
+import { IndodaxError } from "../src/exceptions";
+
+describe("Client", () => {
+  beforeEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  function mockFetchOk(body: any, status = 200) {
+    return jest.spyOn(global, "fetch" as any).mockImplementation(async () => {
+      return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+    });
+  }
+
+  test("getTicker returns TickerResponse", async () => {
+    mockFetchOk({ ticker: { buy: "27000000", sell: "27100000", last: "27050000", high: "28000000", low: "26000000", server_time: 123 } });
+    const c = new Client("", "", { rateLimit: 100 });
+    const t = await c.getTicker("ETHIDR");
+    expect(t.getLastPrice()).toBe(27050000);
+    expect(t.getHighestBid()).toBe(27000000);
+  });
+
+  test("getTicker empty pair throws", async () => {
+    const c = new Client("", "", { rateLimit: 100 });
+    await expect(c.getTicker("   ")).rejects.toThrow("pair cannot be empty");
+  });
+
+  test("getPairs filters minQty > 0 and skips bad rows", async () => {
+    mockFetchOk([
+      { id: "ethidr", trade_min_traded_currency: "10000" },
+      { id: "btcidr", trade_min_traded_currency: "0" },
+      { id: "bad" }, // rusak, harus di-skip
+    ]);
+    const c = new Client("", "", { rateLimit: 100 });
+    const pairs = await c.getPairs();
+    expect(pairs).toHaveLength(1);
+    expect(pairs[0].id).toBe("ETHIDR");
+    expect(pairs[0].minQty).toBe(10000);
+  });
+
+  test("getBalances parses IDR + assetRaw", async () => {
+    mockFetchOk({ balances: [{ asset: "IDR", free: "1000000" }, { asset: "ETH", free: "0.001234" }] });
+    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
+    const b = await c.getBalances("ETHIDR");
+    expect(b.idr).toBe(1000000);
+    expect(b.asset).toBeCloseTo(0.001234);
+    expect(b.assetRaw).toBe("0.001234");
+  });
+
+  test("getBalances without credentials throws", async () => {
+    const c = new Client("", "", { rateLimit: 100 });
+    await expect(c.getBalances("ETHIDR")).rejects.toThrow("missing credentials");
+  });
+
+  test("placeMarketBuy uses quoteOrderQty with 2 decimals", async () => {
+    const mock = mockFetchOk({ symbol: "ETHIDR", orderId: 123, clientOrderId: "abc", side: "BUY", type: "MARKET" });
+    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
+    const r = await c.placeMarketBuy("ETHIDR", 27000000);
+    expect(r.orderId).toBe(123);
+    expect(r.side).toBe("BUY");
+    // body harus ada quoteOrderQty=27000000.00
+    const body = (mock.mock.calls[0][1] as any).body as string;
+    expect(body).toContain("quoteOrderQty=27000000.00");
+    expect(body).toContain("type=MARKET");
+  });
+
+  test("placeMarketSell uses quantity raw string", async () => {
+    const mock = mockFetchOk({ symbol: "ETHIDR", orderId: 456, side: "SELL", type: "MARKET" });
+    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
+    const r = await c.placeMarketSell("ETHIDR", "0.001234");
+    expect(r.orderId).toBe(456);
+    const body = (mock.mock.calls[0][1] as any).body as string;
+    expect(body).toContain("quantity=0.001234");
+    expect(body).not.toContain("quoteOrderQty");
+  });
+
+  test("tradeHistory parses list", async () => {
+    mockFetchOk({ data: [{ tradeId: "1", orderId: "10", clientOrderId: "c1", symbol: "ETHIDR", price: "27000000", qty: "0.01", quoteQty: "270000", commission: "0", commissionAsset: "IDR", isBuyer: true, isMaker: false, time: 123 }] });
+    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
+    const trades = await c.tradeHistory({ symbol: "ETHIDR" });
+    expect(trades).toHaveLength(1);
+    expect(trades[0].tradeId).toBe("1");
+    expect(trades[0].isBuyer).toBe(true);
+  });
+
+  test("_checkStatus throws IndodaxError on code+msg", async () => {
+    mockFetchOk({ code: -1003, msg: "rate limit" }, 429);
+    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
+    await expect(c.getTicker("ETHIDR")).rejects.toThrow(IndodaxError);
+    try {
+      await c.getTicker("ETHIDR");
+    } catch (e: any) {
+      expect(e.isRateLimit()).toBe(true);
+    }
+  });
+
+  test("_checkStatus throws generic Error on non-JSON 500", async () => {
+    jest.spyOn(global, "fetch" as any).mockImplementation(async () => new Response("boom", { status: 500 }));
+    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
+    await expect(c.getTicker("ETHIDR")).rejects.toThrow("HTTP 500");
+  });
+});
