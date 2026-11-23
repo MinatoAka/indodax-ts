@@ -1,3 +1,4 @@
+import { describe, test, expect } from "vitest";
 import { TickerResponse } from "../src/models";
 
 describe("models", () => {
