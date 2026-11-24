@@ -1,5 +1,5 @@
 <div align="center">
-# indodax-ts
+# 🦖 indodax-ts
 
 **Standalone TypeScript SDK for Official Indodax Trade API v2**
 
