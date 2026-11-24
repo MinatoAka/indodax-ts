@@ -1,14 +1,19 @@
+<div align="center">
 # indodax-ts
+
+**Standalone TypeScript SDK for Official Indodax Trade API v2.**
+
+Indodax TypeScript SDK untuk data publik, informasi akun, penempatan order market, dan riwayat transaksi.
 
 [![Test](https://github.com/MinatoAka/indodax-ts/actions/workflows/test.yml/badge.svg)](https://github.com/MinatoAka/indodax-ts/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-Indodax TypeScript SDK untuk data publik, informasi akun, penempatan order market, dan riwayat transaksi.
+[![Support via Saweria](https://img.shields.io/badge/Saweria-Support%20me-orange)](https://saweria.co/AKaAturDompet)
+</div>
 
 ## Instalasi
 
 ```bash
-npm install indodax-ts
+npm install git+https://github.com/MinatoAka/indodax-ts.git
 ```
 
 ## Penggunaan
@@ -97,6 +102,15 @@ npm test
 npm run build
 ```
 
-## Lisensi
+## 🕵️ Reference
 
-[MIT](LICENSE)
+* [Standalone Library Go Indodax API](https://github.com/MinatoAka/indodax-go)
+* [Indodax Official Api Docs](https://github.com/btcid/indodax-official-api-docs)
+
+
+## 🤝 Support & Exchange
+
+If this library helps you build profitable bots, consider supporting the development!
+
+* 👉 [Daftar Akun Indodax](https://indodax.com/deeplink?page=register&id=AkaKen) (Referral)
+* 👉 [Traktir Kopi](https://saweria.co/AKaAturDompet) ☕
