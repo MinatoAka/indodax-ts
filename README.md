@@ -5,6 +5,7 @@
 
 Indodax TypeScript SDK untuk data publik, informasi akun, penempatan order market, dan riwayat transaksi.
 
+[![TypeScript](https://img.shields.io/badge/TypeScript-100%25-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Test](https://github.com/MinatoAka/indodax-ts/actions/workflows/test.yml/badge.svg)](https://github.com/MinatoAka/indodax-ts/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Support via Saweria](https://img.shields.io/badge/Saweria-Support%20me-orange)](https://saweria.co/AKaAturDompet)
