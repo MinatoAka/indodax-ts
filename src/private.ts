@@ -97,42 +97,52 @@ export class PrivateAPI extends PublicAPI {
     };
   }
 
-  async placeMarketBuy(pair: string, idrAmount: number): Promise<OrderResult> {
-    if (!Number.isFinite(idrAmount) || idrAmount <= 0) {
-      throw new Error("quoteOrderQty must be greater than zero");
-    }
-    if (!Number.isSafeInteger(idrAmount)) {
-      throw new Error("quoteOrderQty must be a whole IDR amount");
-    }
-    return this.submitOrder({
-      symbol: pair.toUpperCase(),
-      side: "BUY",
-      quoteOrderQty: String(idrAmount),
-    });
-  }
-
-  async placeMarketSell(pair: string, coinAmountRaw: string): Promise<OrderResult> {
-    return this.submitOrder({
-      symbol: pair.toUpperCase(),
-      side: "SELL",
-      quantity: coinAmountRaw,
-    });
-  }
-
   async tradeHistory(req: TradeHistoryRequest): Promise<Trade[]> {
     if (!this.apiKey || !this.secretKey) throw new Error("missing credentials for private endpoint");
-    if (!req.symbol) throw new Error("symbol is mandatory for trade history");
+    const symbol = req.symbol?.trim().toLowerCase();
+    if (!symbol) throw new Error("symbol is mandatory for trade history");
+
+    // Payload myTrades yang bener: symbol + fullOrderId
+    // Docs Trade API v2: orderId di myTrades itu fullOrderId ("aaveidr-limit-3568"),
+    const fullOrderId = (req.fullOrderId ?? req.orderId ?? "").trim();
+    const clientOrderId = (req.clientOrderId ?? "").trim();
+
+    if (fullOrderId && clientOrderId) {
+      throw new Error("fullOrderId and clientOrderId cannot be used together");
+    }
+    
+    const hasTimeFilter = (req.startTime && req.startTime > 0) || (req.endTime && req.endTime > 0);
+    if ((fullOrderId || clientOrderId) && hasTimeFilter) {
+      throw new Error("fullOrderId/clientOrderId cannot be combined with startTime/endTime");
+    }
+    if (req.startTime && req.startTime > 0 && req.endTime && req.endTime > 0) {
+      if (req.endTime < req.startTime) throw new Error("endTime must be >= startTime");
+      if (req.endTime - req.startTime > 7 * 24 * 60 * 60 * 1000) {
+        throw new Error("startTime/endTime range cannot exceed 7 days");
+      }
+    }
+
+    const limit = req.limit ?? 500;
+    if (!Number.isInteger(limit) || limit < 10 || limit > 1000) {
+      throw new Error("limit must be between 10 and 1000");
+    }
+    
+    const sort = (req.sort ?? "desc").trim().toLowerCase();
+    if (sort !== "asc" && sort !== "desc") {
+      throw new Error('sort must be "asc" or "desc"');
+    }
+
     const params: Record<string, string> = {
-      symbol: req.symbol.toLowerCase(),
+      symbol,
       timestamp: String(Date.now()),
       recvWindow: "5000",
+      limit: String(limit),
+      sort,
     };
-    if (req.orderId) params["orderId"] = req.orderId;
-    if (req.clientOrderId) params["clientOrderId"] = req.clientOrderId;
+    if (fullOrderId) params["fullOrderId"] = fullOrderId;
+    if (clientOrderId) params["clientOrderId"] = clientOrderId;
     if (req.startTime && req.startTime > 0) params["startTime"] = String(req.startTime);
     if (req.endTime && req.endTime > 0) params["endTime"] = String(req.endTime);
-    if (req.limit && req.limit > 0) params["limit"] = String(req.limit);
-    if (req.sort) params["sort"] = req.sort;
     const query = buildQuery(params);
     const sig = signSha256(query, this.secretKey);
     const endpoint = `${PrivateAPI.BASE_URL_PRIVATE}/api/v2/myTrades?${query}`;
