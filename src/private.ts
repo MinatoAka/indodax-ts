@@ -157,7 +157,7 @@ export class PrivateAPI extends PublicAPI {
       limit: String(limit),
       sort,
     };
-    if (fullOrderId) params["fullOrderId"] = fullOrderId;
+    if (fullOrderId) params["orderId"] = fullOrderId;
     if (clientOrderId) params["clientOrderId"] = clientOrderId;
     if (req.startTime && req.startTime > 0) params["startTime"] = String(req.startTime);
     if (req.endTime && req.endTime > 0) params["endTime"] = String(req.endTime);
