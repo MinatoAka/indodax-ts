@@ -25,4 +25,13 @@ describe("MyHTTPClient", () => {
     expect(res2.status).toBe(500);
     expect(calls).toBe(1);
   });
+
+  test("clears timeout after fetch throws", async () => {
+    vi.useFakeTimers();
+    const client = new MyHTTPClient({ retries: 0, rateLimit: 1000, timeout: 5 });
+    (global as any).fetch = vi.fn().mockRejectedValue(new Error("network error"));
+    await expect(client.request("POST", "https://example.com/x")).rejects.toThrow("network error");
+    vi.clearAllTimers();
+    vi.useRealTimers();
+  });
 });

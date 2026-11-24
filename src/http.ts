@@ -46,23 +46,26 @@ export class MyHTTPClient {
   }
 
   async request(method: string, url: string, opts: { headers?: Record<string, string>; body?: string } = {}): Promise<{ status: number; text: string; json: () => Promise<any> }> {
-    await this.rateLimitWait();
-
     const isSafe = ["HEAD", "GET", "OPTIONS"].includes(method.toUpperCase());
     const maxAttempts = isSafe ? this.retries + 1 : 1;
 
     let lastErr: any = null;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await this.rateLimitWait();
       try {
         const ctrl = new AbortController();
         const t = setTimeout(() => ctrl.abort(), this.timeout * 1000);
-        const res = await fetch(url, {
-          method,
-          headers: { "User-Agent": this.userAgent, ...(opts.headers ?? {}) },
-          body: opts.body,
-          signal: ctrl.signal,
-        });
-        clearTimeout(t);
+        let res: Response;
+        try {
+          res = await fetch(url, {
+            method,
+            headers: { "User-Agent": this.userAgent, ...(opts.headers ?? {}) },
+            body: opts.body,
+            signal: ctrl.signal,
+          });
+        } finally {
+          clearTimeout(t);
+        }
 
         // Retry untuk 429 / 5xx, hanya untuk method aman.
         if (isSafe && [429, 500, 502, 503, 504].includes(res.status) && attempt < maxAttempts - 1) {

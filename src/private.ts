@@ -45,15 +45,40 @@ export class PrivateAPI extends PublicAPI {
 
   async submitOrder(req: SubmitOrderRequest): Promise<OrderResult> {
     if (!this.apiKey || !this.secretKey) throw new Error("missing credentials for private endpoint");
+    const symbol = req.symbol.trim().toUpperCase();
+    const side = req.side.trim().toUpperCase();
+    if (!symbol) throw new Error("symbol cannot be empty");
+    if (side !== "BUY" && side !== "SELL") throw new Error("side must be BUY or SELL");
+
+    const hasQuantity = req.quantity !== undefined && req.quantity.trim() !== "";
+    const hasQuoteOrderQty = req.quoteOrderQty !== undefined && req.quoteOrderQty.trim() !== "";
+    if (hasQuantity === hasQuoteOrderQty) {
+      throw new Error("exactly one of quantity or quoteOrderQty is required");
+    }
+
+    if (hasQuantity) {
+      const quantity = Number(req.quantity);
+      if (!Number.isFinite(quantity) || quantity <= 0) throw new Error("quantity must be greater than zero");
+    } else {
+      const quoteOrderQty = Number(req.quoteOrderQty);
+      if (!Number.isFinite(quoteOrderQty) || quoteOrderQty <= 0) {
+        throw new Error("quoteOrderQty must be greater than zero");
+      }
+      if (side !== "BUY") throw new Error("quoteOrderQty is only valid for BUY market orders");
+      if (!Number.isSafeInteger(quoteOrderQty)) {
+        throw new Error("quoteOrderQty must be a whole IDR amount");
+      }
+    }
+
     const params: Record<string, string> = {
-      symbol: req.symbol,
-      side: req.side.toUpperCase(),
+      symbol,
+      side,
       type: "MARKET",
       timestamp: String(Date.now()),
       recvWindow: "5000",
     };
-    if (req.quantity) params["quantity"] = req.quantity;
-    if (req.quoteOrderQty) params["quoteOrderQty"] = req.quoteOrderQty;
+    if (hasQuantity) params["quantity"] = req.quantity!.trim();
+    if (hasQuoteOrderQty) params["quoteOrderQty"] = req.quoteOrderQty!.trim();
     const payload = buildQuery(params);
     const sig = signSha256(payload, this.secretKey);
     const endpoint = `${PrivateAPI.BASE_URL_PRIVATE}/api/v2/order`;
@@ -74,10 +99,16 @@ export class PrivateAPI extends PublicAPI {
   }
 
   async placeMarketBuy(pair: string, idrAmount: number): Promise<OrderResult> {
+    if (!Number.isFinite(idrAmount) || idrAmount <= 0) {
+      throw new Error("quoteOrderQty must be greater than zero");
+    }
+    if (!Number.isSafeInteger(idrAmount)) {
+      throw new Error("quoteOrderQty must be a whole IDR amount");
+    }
     return this.submitOrder({
       symbol: pair.toUpperCase(),
       side: "BUY",
-      quoteOrderQty: idrAmount.toFixed(2),
+      quoteOrderQty: String(idrAmount),
     });
   }
 
