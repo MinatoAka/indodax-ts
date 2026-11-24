@@ -122,7 +122,7 @@ export class PrivateAPI extends PublicAPI {
 
     // Payload myTrades yang bener: symbol + fullOrderId
     // Docs Trade API v2: orderId di myTrades itu fullOrderId ("aaveidr-limit-3568"),
-    const fullOrderId = (req.fullOrderId ?? "").trim();
+    const fullOrderId = (req.orderId ?? "").trim();
     const clientOrderId = (req.clientOrderId ?? "").trim();
 
     if (fullOrderId && clientOrderId) {
