@@ -15,7 +15,7 @@ export class Client extends PrivateAPI {
       retries: opts.retries ?? 3,
       rateLimit: opts.rateLimit ?? 5,
       timeout: opts.timeout ?? 15,
-      userAgent: opts.userAgent ?? "indodax-ts/1.0",
+      userAgent: opts.userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     });
   }
 
