@@ -1,5 +1,4 @@
 import { buildQuery, signSha256 } from "./crypto";
-import { MyHTTPClient } from "./http";
 import { BalanceResult, SubmitOrderRequest, OrderResult, TradeHistoryRequest, Trade } from "./models";
 import { PublicAPI } from "./public";
 
