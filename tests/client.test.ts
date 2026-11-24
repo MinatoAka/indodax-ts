@@ -88,7 +88,7 @@ describe("Client", () => {
     const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
     await c.tradeHistory({ symbol: "ETHIDR", orderId: "ethidr-market-3568" });
     const url = mock.mock.calls[0][0] as string;
-    expect(url).toContain("fullOrderId=ethidr-market-3568");
+    expect(url).toContain("orderId=ethidr-market-3568");
   });
 
   test("tradeHistory rejects fullOrderId with clientOrderId", async () => {
