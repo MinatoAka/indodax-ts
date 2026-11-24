@@ -84,9 +84,9 @@ describe("Client", () => {
   });
 
   test("tradeHistory parses list", async () => {
-    mockFetch({ data: [{ tradeId: "1", orderId: "10", clientOrderId: "c1", symbol: "ETHIDR", price: "27000000", qty: "0.01", quoteQty: "270000", commission: "0", commissionAsset: "IDR", isBuyer: true, isMaker: false, time: 123 }] });
-    const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
-    const trades = await c.tradeHistory({ symbol: "ETHIDR" });
+    mockFetch({ data: [{ tradeId: "1", orderId: "eth-market-10", clientOrderId: "c1", symbol: "ETHIDR", price: "27000000", qty: "0.01", quoteQty: "270000", commission: "0", commissionAsset: "IDR", isBuyer: true, isMaker: false, time: 123 }] });
+    const c = new Client("KEY", "SECRET");
+    const trades = await c.tradeHistory({ symbol: "ETHIDR", fullOrderId: "eth-market-10" });
     expect(trades).toHaveLength(1);
     expect(trades[0].tradeId).toBe("1");
   });
