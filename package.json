@@ -1,6 +1,6 @@
 {
   "name": "indodax-ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Standalone TypeScript SDK for Official Indodax Trade API v2.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
