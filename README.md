@@ -19,6 +19,8 @@ npm install git+https://github.com/MinatoAka/indodax-ts.git
 ## Penggunaan
 
 ### Setup Client
+Request `POST` tidak dilakukan retry demi mencegah eksekusi order berulang.
+
 ```typescript
 import { Client } from "indodax-ts";
 
@@ -145,17 +147,6 @@ async function riwayat() {
 }
 riwayat();
 ```
-
-## Konfigurasi HTTP
-
-| Opsi | Default | Deskripsi |
-|---|---:|---|
-| `retries` | `3` | Jumlah retry untuk request aman (`GET`, `HEAD`, dan `OPTIONS`). |
-| `rateLimit` | `5` | Maksimum interval distribusi request; dihitung per detik. |
-| `timeout` | `15` | Timeout setiap request dalam detik. |
-| `userAgent` | `indodax-ts/1.0` | Nilai header User-Agent. |
-
-Request `POST` tidak dilakukan retry demi mencegah eksekusi order berulang.
 
 ## Penanganan Error
 
