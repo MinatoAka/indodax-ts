@@ -18,53 +18,132 @@ npm install git+https://github.com/MinatoAka/indodax-ts.git
 
 ## Penggunaan
 
+### Setup Client
 ```typescript
 import { Client } from "indodax-ts";
 
-const client = new Client("YOUR_API_KEY", "YOUR_SECRET_KEY", {
-  retries: 3,
-  rateLimit: 5,
-  timeout: 15,
+// 1. Public, tanpa key - buat cek harga live
+const pub = new Client("", "");
+
+// 2. Private - buat cek saldo + order
+const client = new Client("API_KEY_LU", "SECRET_LU");
+
+// 3. Dengan opsi - 
+const client2 = new Client("API_KEY_LU", "SECRET_LU", {
+  retries: 3,      // default 3, cuma buat GET
+  rateLimit: 5,   // default 5 req/detik = 300 req/menit
+  timeout: 15,    // default 15 detik
+  userAgent: "indodax-ts/1.0",
 });
 ```
 
-### Ticker dan Pasangan
+### Ticker dan Pairs
 
 ```typescript
-const ticker = await client.getTicker("ETHIDR");
-console.log(ticker.getLastPrice());
+import { Client } from "indodax-ts";
 
-const pairs = await client.getPairs();
-console.log(pairs);
+const pub = new Client("", "");
+
+async function cekHarga() {
+  const t = await pub.getTicker("ETHIDR");
+  console.log("last:", t.getLastPrice());       // harga live terakhir
+  console.log("buy:", t.getHighestBid());       // best bid
+  console.log("sell:", t.getLowestAsk());       // best ask
+  console.log("high:", t.getDayHigh());
+  console.log("low:", t.getDayLow());
+  console.log("raw:", t.ticker); // { buy, sell, last, high, low, serverTime }
+
+async function listPair() {
+  const pairs = await pub.getPairs();
+  // pairs: [{ id: "ETHIDR", minQty: 10000 }, ...]
+
+  for (const p of pairs) {
+    console.log(p.id, "min:", p.minQty);
+  }
+
+  // Cari 1 pair
+  const eth = pairs.find((p) => p.id === "ETHIDR");
+  console.log("ETHIDR min:", eth?.minQty);
+}
+listPair();
 ```
 
 ### Saldo
 
 ```typescript
-const balances = await client.getBalances("ETHIDR");
-console.log(balances.idr);
-console.log(balances.assetRaw);
+import { Client } from "indodax-ts";
+
+const client = new Client("API_KEY_LU", "SECRET_LU");
+
+async function cekSaldo() {
+  const bal = await client.getBalances("ETHIDR");
+  console.log("IDR:", bal.idr);           // number, udah parseFloat
+  console.log("ETH:", bal.asset);         // number
+  console.log("ETH raw:", bal.assetRaw);  // string mentah, "0.001234" - anti float error
+
+  if (bal.idr < 27000000) {
+    console.log("IDR kurang buat buy 27jt");
+  }
+}
+cekSaldo();
 ```
 
 ### Order Market
 
 ```typescript
-const buy = await client.placeMarketBuy("ETHIDR", 27000000);
-console.log(buy);
+import { Client } from "indodax-ts";
 
-const sell = await client.placeMarketSell("ETHIDR", "0.001234");
-console.log(sell);
+const client = new Client("API_KEY_LU", "SECRET_LU");
+
+async function beli() {
+  // Beli ETH senilai 27jt IDR
+  // Di dalam lib: quoteOrderQty = String(27000000) -> "27000000"
+  // Harus IDR bulat, nggak boleh 27000000.50 - bakal di-throw "quoteOrderQty must be a whole IDR amount"
+  const order = await client.placeMarketBuy("ETHIDR", 27000000);
+  console.log("orderId:", order.orderId);
+  console.log("symbol:", order.symbol);
+  console.log("side:", order.side);
+  console.log("type:", order.type);
+}
+beli();
+
+async function jual() {
+  const bal = await client.getBalances("ETHIDR");
+
+  // Pakai assetRaw dari getBalances
+  const order = await client.placeMarketSell("ETHIDR", bal.assetRaw);
+  console.log("orderId:", order.orderId);
+}
+jual();
 ```
 
 ### Riwayat Transaksi
 
 ```typescript
-const trades = await client.tradeHistory({
-  symbol: "ETHIDR",
-  limit: 100,
-  sort: "desc",
-});
-console.log(trades);
+import { Client } from "indodax-ts";
+
+const client = new Client("API_KEY_LU", "SECRET_LU");
+
+async function riwayat() {
+  // Semua trade ETHIDR
+  const trades = await client.tradeHistory({ symbol: "ETHIDR" });
+
+  for (const t of trades) {
+    console.log(t.tradeId, t.symbol, t.price, t.qty, t.isBuyer ? "BUY" : "SELL");
+  }
+
+  // Filter pakai orderId / limit / waktu
+  const filtered = await client.tradeHistory({
+    symbol: "ETHIDR",
+    limit: 10,
+    sort: "DESC",
+    // orderId: "123",
+    // startTime: 1700000000000, // ms
+    // endTime: 1701000000000,
+  });
+  console.log("filtered:", filtered.length);
+}
+riwayat();
 ```
 
 ## Konfigurasi HTTP
