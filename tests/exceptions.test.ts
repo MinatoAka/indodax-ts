@@ -1,4 +1,3 @@
-import { describe, test, expect } from "vitest";
 import { IndodaxError } from "../src/exceptions";
 
 describe("IndodaxError", () => {
