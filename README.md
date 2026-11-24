@@ -158,24 +158,8 @@ const client = new Client("API_KEY_LU", "SECRET_LU");
 
 async function riwayat() {
   // Semua trade ETHIDR
-  const trades = await client.tradeHistory({ symbol: "ETHIDR" });
+  const trades = await client.tradeHistory({ symbol: "ETHIDR", orderId: "ethidr-market-3568" });
 
-  for (const t of trades) {
-    console.log(t.tradeId, t.symbol, t.price, t.qty, t.isBuyer ? "BUY" : "SELL");
-  }
-
-  // Filter pakai orderId / limit / waktu
-  const filtered = await client.tradeHistory({
-    symbol: "ETHIDR",
-    limit: 10,
-    sort: "DESC",
-    // orderId: "123",
-    // startTime: 1700000000000, // ms
-    // endTime: 1701000000000,
-  });
-  console.log("filtered:", filtered.length);
-}
-riwayat();
 ```
 
 ## Penanganan Error
