@@ -46,7 +46,7 @@ export class TickerResponse {
 
 export interface TradeHistoryRequest {
   symbol: string;
-  fullOrderId?: string;
+  orderId: string;
   clientOrderId?: string;
   startTime?: number;
   endTime?: number;
