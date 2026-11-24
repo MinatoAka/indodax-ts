@@ -16,6 +16,30 @@ Indodax TypeScript SDK untuk data publik, informasi akun, penempatan order marke
 npm install git+https://github.com/MinatoAka/indodax-ts.git
 ```
 
+## Struktur file
+```text
+indodax-ts/
+├── src/
+│   ├── index.ts              # export doang
+│   ├── client.ts             # Client extends PrivateAPI + _checkStatus
+│   ├── public.ts             # getTicker, getPairs
+│   ├── private.ts            # getBalances, submitOrder, placeMarketBuy/Sell, tradeHistory
+│   ├── http.ts               # MyHTTPClient, retry GET doang, rate limit
+│   ├── crypto.ts             # buildQuery + signSha256
+│   ├── models.ts             # interface + TickerResponse + TradeHistoryRequest
+│   └── exceptions.ts         # IndodaxError
+├── tests/
+│   ├── client.test.ts        # ticker, balances, buy/sell, tradeHistory
+│   ├── crypto.test.ts
+│   ├── exceptions.test.ts
+│   ├── http.test.ts
+│   └── models.test.ts
+├── package.json
+├── tsconfig.json
+├── vitest.config.mts
+└── README.md
+```
+
 ## Penggunaan
 
 ### Setup Client
