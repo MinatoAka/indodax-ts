@@ -8,7 +8,9 @@ Indodax TypeScript SDK untuk data publik, informasi akun, penempatan order marke
 [![Test](https://github.com/MinatoAka/indodax-ts/actions/workflows/test.yml/badge.svg)](https://github.com/MinatoAka/indodax-ts/actions/workflows/test.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Support via Saweria](https://img.shields.io/badge/Saweria-Support%20me-orange)](https://saweria.co/AKaAturDompet)
+
 </div>
+---
 
 ## Instalasi
 
