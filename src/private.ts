@@ -152,7 +152,6 @@ export class PrivateAPI extends PublicAPI {
     return data.map((t: any) => ({
       tradeId: t["tradeId"] ?? "",
       orderId: t["orderId"] ?? "",
-      clientOrderId: t["clientOrderId"] ?? "",
       symbol: t["symbol"] ?? "",
       price: t["price"] ?? "0",
       qty: t["qty"] ?? "0",
