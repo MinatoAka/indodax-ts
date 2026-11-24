@@ -97,6 +97,24 @@ export class PrivateAPI extends PublicAPI {
     };
   }
 
+  async placeMarketBuy(pair: string, idrAmount: number): Promise<OrderResult> {
+    if (!Number.isFinite(idrAmount) || idrAmount <= 0) throw new Error("quoteOrderQty must be greater than zero");
+    if (!Number.isSafeInteger(idrAmount)) throw new Error("quoteOrderQty must be a whole IDR amount");
+    return this.submitOrder({
+      symbol: pair.toUpperCase(),
+      side: "BUY",
+      quoteOrderQty: String(idrAmount),
+    });
+  }
+
+  async placeMarketSell(pair: string, coinAmountRaw: string): Promise<OrderResult> {
+    return this.submitOrder({
+      symbol: pair.toUpperCase(),
+      side: "SELL",
+      quantity: coinAmountRaw,
+    });
+  }
+
   async tradeHistory(req: TradeHistoryRequest): Promise<Trade[]> {
     if (!this.apiKey || !this.secretKey) throw new Error("missing credentials for private endpoint");
     const symbol = req.symbol?.trim().toLowerCase();
