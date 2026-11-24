@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from "vitest";
 import { IndodaxError } from "../src/exceptions";
 
 describe("IndodaxError", () => {
