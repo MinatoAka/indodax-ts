@@ -1,7 +1,7 @@
 <div align="center">
 # indodax-ts
 
-**Standalone TypeScript SDK for Official Indodax Trade API v2.**
+**Standalone TypeScript SDK for Official Indodax Trade API v2**
 
 Indodax TypeScript SDK untuk data publik, informasi akun, penempatan order market, dan riwayat transaksi.
 
