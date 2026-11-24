@@ -13,9 +13,7 @@ function mockFetch(body: any, status = 200) {
 }
 
 describe("Client", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  beforeEach(() => { vi.clearAllMocks(); });
 
   test("getTicker returns TickerResponse", async () => {
     mockFetch({ ticker: { buy: "27000000", sell: "27100000", last: "27050000", high: "28000000", low: "26000000", server_time: 123 } });
@@ -49,13 +47,30 @@ describe("Client", () => {
     expect(b.assetRaw).toBe("0.001234");
   });
 
-  test("placeMarketBuy uses quoteOrderQty", async () => {
+  test("placeMarketBuy uses whole quoteOrderQty", async () => {
     const mock = mockFetch({ symbol: "ETHIDR", orderId: 123, side: "BUY", type: "MARKET" });
     const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
     const r = await c.placeMarketBuy("ETHIDR", 27000000);
     expect(r.orderId).toBe(123);
     const body = (mock.mock.calls[0][1] as any).body as string;
-    expect(body).toContain("quoteOrderQty=27000000.00");
+    expect(body).toContain("quoteOrderQty=27000000");
+  });
+
+  test("placeMarketBuy rejects decimal amount", async () => {
+    const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
+    await expect(c.placeMarketBuy("ETHIDR", 27000000.5)).rejects.toThrow("whole IDR amount");
+  });
+
+  test("submitOrder rejects both quantity and quoteOrderQty", async () => {
+    const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
+    await expect(c.submitOrder({ symbol: "ETHIDR", side: "BUY", quantity: "0.1", quoteOrderQty: "27000000" }))
+      .rejects.toThrow("exactly one");
+  });
+
+  test("submitOrder rejects invalid side", async () => {
+    const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
+    await expect(c.submitOrder({ symbol: "ETHIDR", side: "HOLD", quantity: "0.1" }))
+      .rejects.toThrow("BUY or SELL");
   });
 
   test("placeMarketSell uses quantity raw", async () => {
