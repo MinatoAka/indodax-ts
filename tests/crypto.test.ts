@@ -1,3 +1,4 @@
+import { describe, test, expect, beforeEach, vi } from "vitest";
 import { buildQuery, signSha256 } from "../src/crypto";
 
 describe("crypto", () => {
