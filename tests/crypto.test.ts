@@ -1,4 +1,3 @@
-import { describe, test, expect } from "vitest";
 import { buildQuery, signSha256 } from "../src/crypto";
 
 describe("crypto", () => {
@@ -7,8 +6,8 @@ describe("crypto", () => {
     expect(buildQuery({ symbol: "ETHIDR", side: "BUY" })).toBe("side=BUY&symbol=ETHIDR");
   });
 
-  test("signSha256 matches node crypto", async () => {
-    const crypto = await import("node:crypto");
+  test("signSha256 matches node crypto", () => {
+    const crypto = require("node:crypto");
     const expected = crypto.createHmac("sha256", "secret").update("hello", "utf-8").digest("hex");
     expect(signSha256("hello", "secret")).toBe(expected);
     expect(signSha256("hello", "secret")).toHaveLength(64);
