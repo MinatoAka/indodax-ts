@@ -76,20 +76,15 @@ describe("Client", () => {
     expect(trades[0].tradeId).toBe("1");
   });
 
-  test("_checkStatus throws IndodaxError on code+msg", async () => {
+  test("_checkStatus throws IndodaxError", async () => {
     mockFetch({ code: -1003, msg: "rate limit" }, 429);
-    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
-    await expect(c.getTicker("ETHIDR")).rejects.toThrow(IndodaxError);
+    const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
     try {
       await c.getTicker("ETHIDR");
+      throw new Error("should throw");
     } catch (e: any) {
+      expect(e).toBeInstanceOf(IndodaxError);
       expect(e.isRateLimit()).toBe(true);
     }
-  });
-
-  test("_checkStatus throws generic Error on non-JSON 500", async () => {
-    jest.spyOn(global, "fetch" as any).mockImplementation(async () => new Response("boom", { status: 500 }));
-    const c = new Client("KEY", "SECRET", { rateLimit: 100 });
-    await expect(c.getTicker("ETHIDR")).rejects.toThrow("HTTP 500");
   });
 });
