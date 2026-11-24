@@ -77,7 +77,7 @@ describe("Client", () => {
   });
 
   test("_checkStatus throws IndodaxError on code+msg", async () => {
-    mockFetchOk({ code: -1003, msg: "rate limit" }, 429);
+    mockFetch({ code: -1003, msg: "rate limit" }, 429);
     const c = new Client("KEY", "SECRET", { rateLimit: 100 });
     await expect(c.getTicker("ETHIDR")).rejects.toThrow(IndodaxError);
     try {
