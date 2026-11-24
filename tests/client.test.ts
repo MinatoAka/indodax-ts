@@ -84,11 +84,11 @@ describe("Client", () => {
   });
 
   test("tradeHistory maps legacy orderId to fullOrderId", async () => {
-    const mock = mockFetch({ data: [{ tradeId: "1", orderId: "eth-market-10", clientOrderId: "c1", symbol: "ETHIDR", price: "27000000", qty: "0.01", quoteQty: "270000", commission: "0", commissionAsset: "IDR", isBuyer: true, isMaker: false, time: 123 }] });
+    const mock = mockFetch({ data: [{ tradeId: "1", orderId: "eth-market-3568", clientOrderId: "c1", symbol: "ETHIDR", price: "27000000", qty: "0.01", quoteQty: "270000", commission: "0", commissionAsset: "IDR", isBuyer: true, isMaker: false, time: 123 }] });
     const c = new Client("KEY", "SECRET", { rateLimit: 1000 });
-    await c.tradeHistory({ symbol: "ETHIDR", orderId: "ethidr-limit-3568" } as any);
+    await c.tradeHistory({ symbol: "ETHIDR", orderId: "ethidr-market-3568" } as any);
     const url = mock.mock.calls[0][0] as string;
-    expect(url).toContain("fullOrderId=ethidr-limit-3568");
+    expect(url).toContain("fullOrderId=ethidr-market-3568");
   });
 
   test("_checkStatus throws IndodaxError", async () => {
