@@ -16,10 +16,16 @@ describe("Client", () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   test("getTicker returns TickerResponse", async () => {
-    mockFetch({ ticker: { buy: "27000000", sell: "27100000", last: "27050000", high: "28000000", low: "26000000", server_time: 123 } });
+    mockFetch({ 
+      symbol: "ETHIDR", 
+      price: "27050000" 
+    });
+    
     const c = new Client("", "", { rateLimit: 1000 });
     const t = await c.getTicker("ETHIDR");
-    expect(t.getLastPrice()).toBe(27050000);
+  
+    expect(t.symbol).toBe("ETHIDR");
+    expect(t.price).toBe("27050000");
   });
 
   test("getTicker empty pair throws", async () => {
