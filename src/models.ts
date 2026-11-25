@@ -26,8 +26,8 @@ export interface PairInfo {
 }
 
 export interface TickerResponse {
-  symbol?: string;
-  price?:  string;
+  symbol: string;
+  price:  string;
 }
 
 export interface TradeHistoryRequest {
