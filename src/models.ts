@@ -25,23 +25,9 @@ export interface PairInfo {
   minQty: number;
 }
 
-export interface TickerData {
-  buy: string;
-  sell: string;
-  last: string;
-  high: string;
-  low: string;
-  serverTime: number;
-}
-
 export class TickerResponse {
-  ticker: TickerData;
-  constructor(ticker: TickerData) { this.ticker = ticker; }
-  getLastPrice(): number { return parseFloat(this.ticker.last); }
-  getHighestBid(): number { return parseFloat(this.ticker.buy); }
-  getLowestAsk(): number { return parseFloat(this.ticker.sell); }
-  getDayHigh(): number { return parseFloat(this.ticker.high); }
-  getDayLow(): number { return parseFloat(this.ticker.low); }
+  symbol: string;
+  price:  string;
 }
 
 export interface TradeHistoryRequest {
