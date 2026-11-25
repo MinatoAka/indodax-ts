@@ -12,21 +12,21 @@ export class PublicAPI {
   }
 
   async getTicker(pair: string): Promise<TickerResponse> {
-    if (!pair.trim()) throw new Error("pair cannot be empty");
-    const endpoint = `${PublicAPI.BASE_URL_PUBLIC}/api/ticker/${encodeURIComponent(pair.toLowerCase())}`;
+    if (!pair.trim()) {
+      throw new Error("pair cannot be empty");
+    }
+
+    // Endpoint baru: flat, query param, lowercase
+    const endpoint = `${PrivateAPI.BASE_URL_PRIVATE}/api/v2/ticker/price?symbol=${encodeURIComponent(pair.toLowerCase())}`;
     const resp = await this.http.request("GET", endpoint);
     await (this as any)._checkStatus(resp);
     const data = await resp.json();
-    const t = data["ticker"];
-    const tickerData: TickerData = {
-      buy: t["buy"],
-      sell: t["sell"],
-      last: t["last"],
-      high: t["high"],
-      low: t["low"],
-      serverTime: t["server_time"],
-    };
-    return new TickerResponse(tickerData);
+    
+    // PARSING BARU: Langsung ambil dari root, tanpa nested "ticker"
+    return {
+      symbol: data["symbol"],
+      price: data["price"]
+    } as TickerResponse;
   }
 
   async getPairs(): Promise<PairInfo[]> {
