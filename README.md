@@ -78,12 +78,12 @@ const pub = new Client("", "");
 
 async function cekHarga() {
   const t = await pub.getTicker("ETHIDR");
-  console.log("last:", t.getLastPrice());       // harga live terakhir
-  console.log("buy:", t.getHighestBid());       // best bid
-  console.log("sell:", t.getLowestAsk());       // best ask
-  console.log("high:", t.getDayHigh());
-  console.log("low:", t.getDayLow());
-  console.log("raw:", t.ticker); // { buy, sell, last, high, low, serverTime }
+  console.log("Pair :", t.symbol);
+  console.log("Harga:", t.price);
+
+  // Jika butuh dalam bentuk angka (float) untuk kalkulasi
+  const priceFloat = parseFloat(t.price);
+  console.log("Float:", priceFloat);
 
 async function listPair() {
   const pairs = await pub.getPairs();
