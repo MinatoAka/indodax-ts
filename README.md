@@ -30,7 +30,7 @@ indodax-ts/
 │   ├── client.ts             # Client extends PrivateAPI + _checkStatus
 │   ├── public.ts             # getTicker, getPairs
 │   ├── private.ts            # getBalances, submitOrder, placeMarketBuy/Sell, tradeHistory
-│   ├── http.ts               # MyHTTPClient, retry GET doang, rate limit
+│   ├── http.ts               # MyHTTPClient, retry GET, rate limit
 │   ├── crypto.ts             # buildQuery + signSha256
 │   ├── models.ts             # interface + TickerResponse + TradeHistoryRequest
 │   └── exceptions.ts         # IndodaxError
