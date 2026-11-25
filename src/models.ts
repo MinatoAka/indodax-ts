@@ -25,7 +25,7 @@ export interface PairInfo {
   minQty: number;
 }
 
-export interface TickerResponse {
+export class TickerResponse {
   symbol: string;
   price:  string;
 }
