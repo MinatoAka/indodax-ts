@@ -1,5 +1,6 @@
 import { MyHTTPClient } from "./http";
 import { TickerResponse, TickerData, PairInfo } from "./models";
+import { PrivateAPI } from "./private";
 
 export class PublicAPI {
   protected http!: MyHTTPClient;
